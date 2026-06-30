@@ -12,7 +12,7 @@ The premise: agency MBS carry effectively no credit risk (they're government-bac
 **Drivers (supply and demand):**
 - **Rate volatility** — 21-day rolling standard deviation of daily changes in the 10-year Treasury yield. MBS are negatively convex, so investors demand more spread when rate volatility rises. (A free proxy for the MOVE index.)
 - **Fed absorption** — month-over-month change in the Fed's MBS holdings (`WSHOMCB`). Under QE the Fed soaks up supply (spreads tighten); under QT it sheds MBS (spreads widen).
-- **Commercial bank demand** — month-over-month change in Treasury & agency securities held by all commercial banks (`TASACBW027SBOG`, H.8). Banks are a major holder of agency MBS; when they add securities, demand rises and spreads tighten.
+- **Commercial bank demand** — month-over-month change in Treasury & agency securities held by all commercial banks (`TASACBW027SBOG`, H.8). Banks are a major holder of agency MBS; tested as a demand channel.
 
 **Model:** ordinary least squares,
 `spread ~ rate_volatility + fed_mbs_change + bank_demand_change`.
@@ -39,9 +39,7 @@ The fitted value is the **fair-value spread**; the residual (actual − fair val
 
 ![Crowding score](figures/crowding_score.png)
 
-Rate volatility is the dominant driver of the agency MBS spread (higher rate volatility widens spreads, consistent with the negative convexity of MBS). The change in Fed MBS holdings is negative and significant — Fed purchases (QE) tighten spreads while quantitative tightening widens them — and commercial bank demand adds a second supply/demand channel. Together the technical drivers explain a meaningful share of spread variation. The regime analysis (printed to console and saved to `data/regime_summary.csv`) shows how spreads and the crowding score moved through the 2013, 2020, and 2022 episodes.
-
-*(After running, you can paste your exact R² and the regime table here.)*
+With three technical drivers, the model explains about **25% of the variation in the agency MBS spread (R² = 0.25)**. **Rate volatility is the dominant, highly significant driver** (coefficient ≈ 9.6, p < 0.001): higher rate volatility widens spreads, consistent with the negative convexity of MBS. The **change in Fed MBS holdings is also significant and negative** (p < 0.001) — Fed purchases tighten spreads while quantitative tightening widens them. **Commercial bank demand**, proxied by total Treasury and agency holdings, **was not statistically significant** (p = 0.65), suggesting the broad proxy does not cleanly capture MBS-specific demand. Across regimes, the **2022 QT episode saw the largest spread widening (+0.78pp)**, consistent with the Fed withdrawing support, while 2013 and 2020 were more muted.
 
 ## How to run
 
@@ -57,13 +55,14 @@ Pulls the live FRED data, runs the regression, writes the charts, `data/merged.c
 
 - The dependent variable is a **proxy** spread (mortgage rate minus Treasury), not a true option-adjusted spread (OAS), which requires paid data.
 - The rate-volatility input is a **proxy** for the MOVE index.
-- Bank demand is proxied by total Treasury & agency holdings, not MBS-only.
+- Bank demand is proxied by total Treasury & agency holdings, not MBS-only, and was not significant in this specification.
 - The sample is **monthly**, so results are explanatory, not a high-frequency trading signal; residuals are autocorrelated.
 - This is a deliberately **transparent** model. Desks add net issuance and paydowns, dealer positioning, and prepayment dynamics.
 
 ## Possible extensions
 
 - Add net agency MBS issuance and paydowns for a fuller net-supply measure.
+- Replace the broad bank proxy with an MBS-specific holdings series.
 - Incorporate primary-dealer positioning (NY Fed) into the crowding overlay.
 - Swap the proxy spread for a true MBS OAS series if terminal data becomes available.
 
